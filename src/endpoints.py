@@ -100,21 +100,3 @@ def inject_endpoints(app, config):  # noqa: C901
 
         else:
             raise InvalidArgumentError("value need to be in the query arguments")
-
-    if config.FRONTEND_LOCATION == "TEMPLATE":
-        template = templates.get_template(config)
-
-        @app.route("/<path:path>")
-        @app.route("/")
-        async def entry_point(request, path=""):
-            return response.html(template.render())
-
-    elif config.FRONTEND_LOCATION == "URL":
-
-        @app.route("/<path:path>")
-        @app.route("/")
-        async def entry_point(request, path=""):
-            return response.html(requests.get(f"{config.FRONTEND_PATH}/{path}").text)
-
-    else:
-        raise ValueError("Invalid frontend location type")
