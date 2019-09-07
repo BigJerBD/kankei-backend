@@ -1,0 +1,22 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Node.js
+frontend/node_modules/
+dist/
+
+# Python
+__pycache__
+backend/venv
+*.pyc
+
+# macOs
+.DS_Store
+
+
+# Builds
+dist/
+build/
+

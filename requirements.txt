@@ -1,0 +1,8 @@
+Sanic
+Sanic-Cors
+Jinja2
+
+jaconv
+kanaconv
+requests
+neo4j
