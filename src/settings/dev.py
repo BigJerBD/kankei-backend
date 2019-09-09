@@ -1,9 +1,5 @@
 # noinspection PyUnresolvedReferences
-from settings.base import dir_path
+from settings.base import *
 
-STATIC_FOLDER = f"{dir_path}/../../../frontend/public"
-FRONTEND_LOCATION = "URL"
-FRONTEND_PATH = "http://localhost:8080"
-BACKEND_URL = "localhost:5001"
-
+BACKEND_URL = "localhost:5000"
 ALLOW_CORS = True

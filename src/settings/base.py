@@ -23,8 +23,5 @@ STATIC_FOLDER = "../dist/static"
 STATIC_PATH = "/static"
 
 # ROUTING
-FRONTEND_LOCATION = None
-FRONTEND_PATH = None
 BACKEND_URL = "localhost:5000"
-
 ALLOW_CORS = False

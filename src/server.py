@@ -8,10 +8,6 @@ from endpoints import inject_endpoints
 from exception_responses import inject_exceptions_responses
 
 
-def set_static(app, config):
-    app.static(config.STATIC_PATH, config.STATIC_FOLDER)
-
-
 def set_logging(config):
     logging.basicConfig(level=config.LOGGING_LEVEL)
 
@@ -29,7 +25,6 @@ def start_server():
     app = get_app()
     config = app.config
     set_logging(config)
-    set_static(app, config)
 
     inject_endpoints(app=app, config=config)
     inject_exceptions_responses(app=app, config=config)

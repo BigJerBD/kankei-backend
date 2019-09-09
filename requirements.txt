@@ -1,6 +1,5 @@
 Sanic
 Sanic-Cors
-Jinja2
 
 jaconv
 kanaconv
