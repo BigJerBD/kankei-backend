@@ -4,12 +4,7 @@ from json import loads as jsonloads
 import requests
 from sanic import response
 
-from components import (
-    kankeiforms as kankeiforms_module,
-    templates,
-    neo4j_database,
-    infoqueries,
-)
+from components import kankeiforms as kankeiforms_module, neo4j_database, infoqueries
 from components.kankeiforms.coloring_types import DEFAULT_COLORING_TYPES
 from components.kankeiforms.shown_properties import DEFAULT_SHOWN_PROPERTIES
 from components.searchqueries import get_kanji_search_handler, get_word_search_handler
