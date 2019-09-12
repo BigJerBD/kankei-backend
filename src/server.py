@@ -29,9 +29,7 @@ def start_server():
     inject_endpoints(app=app, config=config)
     inject_exceptions_responses(app=app, config=config)
 
-    if config.ALLOW_CORS:
-        # todo :: allow cors for static file?
-        CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     *host, port = app.config.BACKEND_URL.split(":")
     app.run(

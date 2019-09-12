@@ -3,6 +3,7 @@ from json import loads as jsonloads
 
 import requests
 from sanic import response
+from sanic_cors import cross_origin
 
 from components import kankeiforms as kankeiforms_module, neo4j_database, infoqueries
 from components.kankeiforms.coloring_types import DEFAULT_COLORING_TYPES
