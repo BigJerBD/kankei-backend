@@ -18,6 +18,7 @@ DB_URI = "bolt://localhost:7687"
 DB_USER = "neo4j"
 DB_PASSWORD = "relation"
 DB_TIMEOUT_SEC = 30
+DB_ALLOW_NONE = False
 
 # STATIC CONTENT
 STATIC_FOLDER = "../dist/static"

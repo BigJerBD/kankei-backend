@@ -18,6 +18,7 @@ from exception_types import QueryDoesNotExist, InvalidArgumentError
 def inject_endpoints(app, config):  # noqa: C901
     kankeiforms = kankeiforms_module.get_kankeiforms(config)
     kankeiforms_info = kankeiforms_module.get_kankeiforms_dict(config)
+
     db_driver = neo4j_database.get_db_driver(config)
     kanji_search = get_kanji_search_handler(db_driver)
     word_search = get_word_search_handler(db_driver)
