@@ -14,7 +14,7 @@ class WordLinkedToMeaning(KankeiForm):
     group = "Exploration"
     name = "Get words around meaning"
     tooltip = ""
-    coloring_types = ["Definition", "Meaning", "Character", "Reading"]
+    coloring_types = ["Definition", "Meaning", "Character", "Reading", "Word"]
     fields = [
         StringField(
             name="Meaning", template_name="meaning", description="central meaning"

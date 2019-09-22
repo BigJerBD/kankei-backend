@@ -7,5 +7,6 @@ import logging
 LOGGING_LEVEL = logging.INFO
 SANIC_DEBUG = False
 
+PROXIES_COUNT = 1
 BACKEND_URL = "0.0.0.0:5000"
 DB_URI = "bolt://kankei-db:7687"
