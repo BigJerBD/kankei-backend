@@ -21,8 +21,6 @@ def default_response(request, e):
     code = 500
     logging.error(f"Internal Error :: {e}")
     logging.error(traceback.format_exc())
-    if isinstance(e, HTTPException):
-        code = e.code
     return response.json("Internal Server Error", status=code)
 
 

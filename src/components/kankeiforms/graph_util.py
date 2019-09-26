@@ -1,6 +1,69 @@
 from tools.japanese import has_hiragana, has_katakana
 
-meaning_broad_subpathing = ":%s" % "|".join(
+ALL_NODES = [
+    "Character",
+    "Component",
+    "Radical",
+    "Stroke",
+    "Meaning",
+    "Reading",
+    "Japanese",
+    "Definition",
+    "WordInfo",
+    "Word",
+    "Chinese",
+    "Korean",
+    "English",
+    "French",
+    "Spanish",
+    "Portugese",
+    "Kanji",
+    "PartOfSpeech",
+    "Domain",
+    "Usage",
+    "Dialect",
+    "Computed",
+]
+
+ALL_NODES_MAIN = [
+    "Character",
+    "Kanji",
+    "Component",
+    "Radical",
+    "Reading",
+    "Stroke",
+    "Word",
+    "PartOfSpeech",
+    "Domain",
+    "Usage",
+    "Dialect",
+    "Usage",
+    "Definition",
+    "Meaning",
+]
+
+ALL_RELATIONSHIPS = [
+    "HasMeaning",
+    "HasReading",
+    "IsComposedOf",
+    "HasStroke",
+    "HasDefinition",
+    "HasInfo",
+    "HasRadical",
+    "HasCharacter",
+    "HasSimilarSound",
+    "IsAntonym",
+    "IsSynonym",
+    "HasArchaism",
+    "HasAlternative",
+    "IsHypernym",
+    "IsHyponym",
+    "IsHolonym",
+    "IsMeronym",
+    "IsFrequentWith",
+]
+
+MEANING_SUBPATHS_PARTIAL = ":%s" % "|".join(
     [
         "IsAntonym",
         "IsSynonym",
@@ -12,17 +75,12 @@ meaning_broad_subpathing = ":%s" % "|".join(
         "IsFrequentWith",
     ]
 )
-
-meaning_limited_subpathing = ":%s" % "|".join(
+MEANING_SUBPATHS_FULL = ":%s" % "|".join(
     ["IsSynonym", "IsHypernym", "IsHyponym", "IsMeronym", "IsHolonym", "IsComposedOf"]
 )
-
-reading_subpathing = ":%s" % "|".join(["HasSimilarSound", "IsComposedOf"])
-
-
-kanji_subwriting = ":%s" % "|".join(["IsComposedOf", "HasRadical"])
-
-kanji_siblings = ":%s" % "|".join(["HasArchaism", "HasAlternative"])
+READING_SUB_PATH = ":%s" % "|".join(["HasSimilarSound", "IsComposedOf"])
+KANJI_SUBSYMBOLS = ":%s" % "|".join(["IsComposedOf", "HasRadical"])
+KANJI_SIBLINGS = ":%s" % "|".join(["HasArchaism", "HasAlternative"])
 
 
 def get_reading_key(value):

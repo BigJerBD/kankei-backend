@@ -5,7 +5,7 @@ def init(config):
     KankeiForm.timeout = config.DB_TIMEOUT_SEC
     from . import exploration
     from . import comparison
-    from . import autocorrelation
+    from . import random
 
 
 def get_kankeiforms(config):

@@ -1,6 +1,6 @@
 from components.kankeiforms.kankeiform import KankeiForm
 from components.kankeiforms.shown_properties import DEFAULT_SHOWN_PROPERTIES
-from components.kankeiforms.transforms import double_nested_list_transform
+from components.kankeiforms.transforms import two_list_transform
 from tools.queryform.fields import IntField, StringField
 
 
@@ -77,62 +77,52 @@ class CompareTwoKanji(KankeiForm):
             hidden=True,
         ),
     ]
-    transform_output = double_nested_list_transform
+    transform_output = two_list_transform
     shown_properties = DEFAULT_SHOWN_PROPERTIES
 
     @classmethod
     def get_query(cls, **kwargs):
         return (
             f"""
-        MATCH(kanji1:Kanji {{writing: $kanji1}})
-        MATCH(kanji2:Kanji {{writing: $kanji2}})
-        MATCH mp = (
-        (kanji1)-[:HasMeaning]->(m:Meaning:English)
-          -[:IsAntonym|IsSynonym|IsComposedOf|IsHypernym|IsMeronym|IsFrequentWith*0..{kwargs["meaning_depth"].value}]-
-        (n:Meaning:English)<-[:HasMeaning]-(kanji2)
-        )
-        WITH mp AS path
-          SKIP 0
-          LIMIT $meaning_max
-        RETURN collect(nodes(path)), collect(relationships(path))
-        UNION
-        MATCH(kanji1:Kanji {{writing: $kanji1}})
-        MATCH(kanji2:Kanji {{writing: $kanji2}})
-        MATCH cp = ((kanji1)-[:HasAlternative|HasArchaism|IsComposedOf*0..{kwargs["writing_depth"].value}]->(:Component)
-            <-[:HasAlternative|HasArchaism|IsComposedOf*0..{kwargs["writing_depth"].value}]-(kanji2)
+            MATCH p1= (
+              (read1:Reading:Japanese)<-[:HasReading]-
+              (kanji1:Kanji {{writing: $kanji1}})-[:HasMeaning]->(mean1:Meaning:English)
             )
-        WITH cp AS path
-          SKIP 0
-          LIMIT $writing_max
-        RETURN collect(nodes(path)), collect(relationships(path))
-        UNION
-        MATCH(kanji1:Kanji {{writing: $kanji1}})
-        MATCH(kanji2:Kanji {{writing: $kanji2}})
-        MATCH cp = ((kanji1)-[:HasReading]->(:Reading)
-          -[:IsComposedOf|HasSimilarSound*0..{kwargs["reading_depth"].value}]->(:Reading)
-          <-[:IsComposedOf|HasSimilarSound*0..{kwargs["reading_depth"].value}]-
-        (:Reading)<-[:HasReading]-(kanji2)
-        )
-        WITH cp AS path
-          SKIP 0
-          LIMIT $reading_max
-        RETURN collect(nodes(path)), collect(relationships(path))
-        UNION
-        MATCH(kanji1:Kanji {{writing: $kanji1}})
-        MATCH(kanji2:Kanji {{writing: $kanji2}})
-        MATCH p = ((kanji1)<-[:HasCharacter]-(:Word)-[:HasCharacter]->(kanji2)
-        )
-        WITH p AS path
-          SKIP 0
-          LIMIT $word_max
-        RETURN collect(nodes(path)), collect(relationships(path));
+            MATCH p2= (
+              (read2:Reading:Japanese)<-[:HasReading]-
+              (kanji2:Kanji {{writing: $kanji2}})-[:HasMeaning]->(mean2:Meaning:English)
+            )
+            OPTIONAL MATCH word_path = (
+            (kanji1)<-[:HasCharacter]-(:Word)-[:HasCharacter]->(kanji2)
+            )
+            OPTIONAL MATCH meaning_path = allShortestPaths(
+            (mean1)
+            -[:IsAntonym|IsSynonym|IsComposedOf|IsHypernym|IsMeronym|IsFrequentWith*1..{kwargs["meaning_depth"].value}]
+            -(mean2)
+            )
+            OPTIONAL MATCH comp_path = (
+            (kanji1)-[:HasAlternative|HasArchaism|IsComposedOf*0..4]->(:Component)
+              <-[:HasAlternative|HasArchaism|IsComposedOf*0..4]-(kanji2))
+            OPTIONAL MATCH read_path = allShortestPaths(
+              (read1)-[:HasSimilarSound*1..{kwargs['reading_depth'].value}]-(read2)
+            )
+            OPTIONAL MAtCH read_path2 = (read1)-[:IsComposedOf]->()<-[:IsComposedOf]-(read2)
+            WITH
+              collect(word_path)[..{kwargs['word_max'].value}]
+              + collect(meaning_path)[..{kwargs['meaning_max'].value}]
+              + collect(comp_path)[..{kwargs['writing_max'].value}]
+              + collect(read_path)[..{kwargs['reading_max'].value}]
+              + collect(read_path2)[..{kwargs['reading_max'].value}]
+              + collect(p1)
+              + collect(p2)
+              AS paths
+            UNWIND paths as path
+            WITH collect(nodes(path)) AS nds, collect(relationships(path)) AS lnks
+            WITH apoc.coll.flatten(nds) AS nds, apoc.coll.flatten(lnks) AS lnks
+            UNWIND nds AS nd
+            WITH collect(DISTINCT nd) AS nodes, lnks
+            UNWIND lnks AS lnk
+            RETURN nodes, collect(DISTINCT lnk) AS links;
         """,
-            {
-                "kanji1": kwargs["kanji1"].value,
-                "kanji2": kwargs["kanji2"].value,
-                "reading_max": kwargs["reading_max"].value,
-                "meaning_max": kwargs["meaning_max"].value,
-                "word_max": kwargs["word_max"].value,
-                "writing_max": kwargs["writing_max"].value,
-            },
+            {"kanji1": kwargs["kanji1"].value, "kanji2": kwargs["kanji2"].value},
         )

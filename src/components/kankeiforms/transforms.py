@@ -2,7 +2,13 @@
 
 
 def two_list_transform(records):
-    nodes, relations = records.values()[0]
+    """
+    transform that simply add the necessary value
+    :param records:
+    :return:
+    """
+    values = records.values()
+    nodes, relations = values[0] if values else [[], []]
     return {
         "nodes": {
             int(node.id): {
@@ -26,7 +32,15 @@ def two_list_transform(records):
 
 
 def nested_list_transform(records):
-    nodes, relations = records.values()[0]
+    """
+    transform used to take a Tuple[List[List[Node]],List[List[Edge]]
+    and convert it into a Tuple[List[Node],List[Edge]
+
+    :param records:
+    :return:
+    """
+    values = records.values()
+    nodes, relations = values[0] if values else [[], []]
     return {
         "nodes": {
             int(node.id): {
@@ -48,29 +62,4 @@ def nested_list_transform(records):
             for rellist in relations
             for rel in rellist
         },
-    }
-
-
-def double_nested_list_transform(records):
-    result = {"nodes": [], "relationships": []}
-    for nodes, relations in records.values()[0]:
-        result["nodes"] += [
-            {"id": int(node.id), "labels": list(node.labels), "data": node._properties}
-            for nodelist in nodes
-            for node in nodelist
-        ]
-        result["relationships"] += [
-            {
-                "id": int(rel.id),
-                "from": int(rel.start),
-                "to": int(rel.end),
-                "type": rel.type,
-                "data": rel._properties,
-            }
-            for rellist in relations
-            for rel in rellist
-        ]
-    return {
-        "nodes": {int(i["id"]): i for i in result["nodes"]},
-        "relationships": {int(i["id"]): i for i in result["relationships"]},
     }

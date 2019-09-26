@@ -1,6 +1,6 @@
 from components.kankeiforms.kankeiform import KankeiForm
 from components.kankeiforms.shown_properties import DEFAULT_SHOWN_PROPERTIES
-from components.kankeiforms.transforms import double_nested_list_transform
+from components.kankeiforms.transforms import two_list_transform
 from tools.queryform.fields import IntField, StringField
 
 
@@ -37,15 +37,6 @@ class CompareTwoWords(KankeiForm):
             validate_error_message='"meaning depth" must be between 0 and 2',
             hidden=True,
         ),
-        IntField(
-            name="writing depth",
-            template_name="writing_depth",
-            description="how deep a writing path can go",
-            default=2,
-            validate=lambda x: 0 <= x <= 2,
-            validate_error_message='"writing depth" must be between 0 and 2',
-            hidden=True,
-        ),
         # maximums and skips
         IntField(
             name="max meaning path",
@@ -54,15 +45,6 @@ class CompareTwoWords(KankeiForm):
             default=25,
             validate=lambda x: 0 <= x <= 50,
             validate_error_message='"max meaning path" must be between 0 and 100',
-            hidden=True,
-        ),
-        IntField(
-            name="max writing path",
-            template_name="writing_max",
-            description="maximum number of writing path",
-            default=20,
-            validate=lambda x: 0 <= x <= 50,
-            validate_error_message='"max writing path" must be between 0 and 50',
             hidden=True,
         ),
         IntField(
@@ -93,63 +75,51 @@ class CompareTwoWords(KankeiForm):
             hidden=True,
         ),
     ]
-    transform_output = double_nested_list_transform
+    transform_output = two_list_transform
     shown_properties = DEFAULT_SHOWN_PROPERTIES
 
     @classmethod
     def get_query(cls, **kwargs):
         return (
-            f"""
-        MATCH(word1:Word {{writing: $word1}})
-        MATCH(word2:Word {{writing: $word2}})
-        MATCH mp = (
-        (word1)-[:HasDefinition]->(:Definition)-[:HasMeaning]->(:Meaning:English)
-          -[:IsAntonym|IsSynonym|IsComposedOf|IsHypernym|IsMeronym|IsFrequentWith*0..{kwargs["meaning_depth"].value}]-
-        (:Meaning:English)<-[:HasMeaning]-(:Definition)<-[:HasDefinition]-(word2)
-        )
-        WITH mp AS path
-          SKIP 0
-          LIMIT $meaning_max
-        RETURN collect(nodes(path)), collect(relationships(path))
-        UNION
-        MATCH(word1:Word {{writing: $word1}})
-        MATCH(word2:Word {{writing: $word2}})
-        MATCH mp = (
-        (word1)-[:HasDefinition]->(:Definition)-[:HasInfo]->(:WordInfo)<-[:HasInfo]-(:Definition)<-[:HasDefinition]-(word2)
-        )
-        WITH mp AS path
-          SKIP 0
-          LIMIT $winfo_max
-        RETURN collect(nodes(path)), collect(relationships(path))
-        UNION
-        MATCH(word1:Word {{writing: $word1}})
-        MATCH(word2:Word {{writing: $word2}})
-        MATCH cp = ((word1)-[:HasReading]->(:Reading)
-          -[:IsComposedOf|HasSimilarSound*0..{kwargs[
-            "writing_depth"].value}]->(:Reading)<-[:IsComposedOf|HasSimilarSound*0..{kwargs["reading_depth"].value}]-
-        (:Reading)<-[:HasReading]-(word2)
-        )
-        WITH cp AS path
-          SKIP 0
-          LIMIT $reading_max
-        RETURN collect(nodes(path)), collect(relationships(path))
-        UNION
-        MATCH(word1:Word {{writing: $word1}})
-        MATCH(word2:Word {{writing: $word2}})
-        MATCH p = ((word1)-[:HasCharacter]->(:Character)<-[:HasCharacter]-(word2)
-        )
-        WITH p AS path
-          SKIP 0
-          LIMIT $char_max
-        RETURN collect(nodes(path)), collect(relationships(path));
+            f"""MATCH p1= (
+              (read1:Reading:Japanese)<-[:HasReading]-
+              (word1:Word {{writing: $word1}})-[:HasDefinition]->()-[:HasMeaning]->(mean1:Meaning:English)
+            )
+            MATCH p2= (
+              (read2:Reading:Japanese)<-[:HasReading]-
+              (word2:Word {{writing: $word2}})-[:HasDefinition]->()-[:HasMeaning]->(mean2:Meaning:English)
+            )
+            OPTIONAL MATCH char_path= (
+            (word1)-[:HasCharacter]->(:Character)<-[:HasCharacter]->(word2)
+            )
+            OPTIONAL MATCH meaning_path = allShortestPaths(
+            (mean1)
+            -[:IsAntonym|IsSynonym|IsComposedOf|IsHypernym|IsMeronym|IsFrequentWith*1..{kwargs["meaning_depth"].value}]
+            -(mean2)
+            )
+            OPTIONAL MATCH read_path = allShortestPaths(
+              (read1)-[:HasSimilarSound*1..{kwargs['reading_depth'].value}]-(read2)
+            )
+            OPTIONAL MATCH read_path2 = (read1)-[:IsComposedOf]->()<-[:IsComposedOf]-(read2)
+            OPTIONAL MATCH winfo_path = (
+                (word1)-[:HasDefinition]->()-[:HasInfo]->(:WordInfo)<-[:HasInfo]-()-[:HasDefinition]-(word2)
+            )
+            WITH
+              collect(char_path)[..{kwargs['char_max'].value}]
+              + collect(meaning_path)[..{kwargs['meaning_max'].value}]
+              + collect(read_path)[..{kwargs['reading_max'].value}]
+              + collect(read_path2)[..{kwargs['reading_max'].value}]
+              + collect(winfo_path)[..{kwargs['winfo_max'].value}]
+              + collect(p1)
+              + collect(p2)
+              AS paths
+            UNWIND paths as path
+            WITH collect(nodes(path)) AS nds, collect(relationships(path)) AS lnks
+            WITH apoc.coll.flatten(nds) AS nds, apoc.coll.flatten(lnks) AS lnks
+            UNWIND nds AS nd
+            WITH collect(DISTINCT nd) AS nodes, lnks
+            UNWIND lnks AS lnk
+            RETURN nodes, collect(DISTINCT lnk) AS links;
         """,
-            {
-                "word1": kwargs["word1"].value,
-                "word2": kwargs["word2"].value,
-                "reading_max": kwargs["reading_max"].value,
-                "meaning_max": kwargs["meaning_max"].value,
-                "winfo_max": kwargs["winfo_max"].value,
-                "char_max": kwargs["char_max"].value,
-                "writing_max": kwargs["writing_max"].value,
-            },
+            {"word1": kwargs["word1"].value, "word2": kwargs["word2"].value},
         )

@@ -1,6 +1,6 @@
 from components.kankeiforms.graph_util import (
-    meaning_broad_subpathing,
-    reading_subpathing,
+    MEANING_SUBPATHS_PARTIAL,
+    READING_SUB_PATH,
     get_reading_key,
 )
 from components.kankeiforms.kankeiform import KankeiForm
@@ -91,7 +91,7 @@ class KanjiLinkedToMeaning(KankeiForm):
             MATCH (m:Meaning:English {{value: $meaning}})
             MATCH(comp:Character {{writing: $radical}})
             MATCH p = (
-            (m)-[{meaning_broad_subpathing}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
+            (m)-[{MEANING_SUBPATHS_PARTIAL}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
               <-[:HasMeaning]-(k:Kanji)-[:HasRadical]->(comp)
             )
             WITH p AS path
@@ -113,7 +113,7 @@ class KanjiLinkedToMeaning(KankeiForm):
             MATCH (m:Meaning:English {{value: $meaning}})
             MATCH(comp:Character {{writing: $comp}})
             MATCH p = (
-            (m)-[{meaning_broad_subpathing}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
+            (m)-[{MEANING_SUBPATHS_PARTIAL}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
               <-[:HasMeaning]-(k:Kanji)-[:IsComposedOf*0..{kanji_search.fields["component_depth"]}]->(comp)
             )
             WITH p AS path
@@ -136,8 +136,8 @@ class KanjiLinkedToMeaning(KankeiForm):
             MATCH (m:Meaning:English {{value: $meaning}})
             MATCH(read:Reading:Japanese {{{get_reading_key(kanji_search.fields["read"])}: $read}})
             MATCH p = (
-            (m)-[{meaning_broad_subpathing}*0..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
-            <-[:HasMeaning]-(k:Kanji)-[{reading_subpathing}|HasReading*0..{kanji_search.fields[
+            (m)-[{MEANING_SUBPATHS_PARTIAL}*0..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
+            <-[:HasMeaning]-(k:Kanji)-[{READING_SUB_PATH}|HasReading*0..{kanji_search.fields[
                 "reading_depth"]}]->(read)
             )
             WITH p AS path

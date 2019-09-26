@@ -1,6 +1,6 @@
 from components.kankeiforms.graph_util import (
-    meaning_broad_subpathing,
-    reading_subpathing,
+    MEANING_SUBPATHS_PARTIAL,
+    READING_SUB_PATH,
     get_reading_key,
 )
 from components.kankeiforms.kankeiform import KankeiForm
@@ -80,7 +80,7 @@ class WordLinkedToMeaning(KankeiForm):
             MATCH (m:Meaning:English {{value: $meaning}})
             MATCH(comp:Character {{writing: $comp}})
             MATCH p = (
-            (m)-[{meaning_broad_subpathing}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
+            (m)-[{MEANING_SUBPATHS_PARTIAL}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
               <-[:HasMeaning]-(d:Definition)<-[:HasDefinition]-(w:Word)-[:HasCharacter]->(comp)
             )
             WITH p AS path
@@ -103,9 +103,9 @@ class WordLinkedToMeaning(KankeiForm):
             MATCH (m:Meaning:English {{value: $meaning}})
             MATCH(read:Reading:Japanese {{{get_reading_key(kanji_search.fields["read"])}: $read}})
             MATCH p = (
-            (m)-[{meaning_broad_subpathing}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
+            (m)-[{MEANING_SUBPATHS_PARTIAL}*1..{kwargs["meaning_depth"].value}]-(n:Meaning:English)
             <-[:HasMeaning]-(d:Definition)<-[:HasDefinition]-(w:Word)
-            -[{reading_subpathing}|HasReading*1..{kanji_search.fields["reading_depth"]}]->(read)
+            -[{READING_SUB_PATH}|HasReading*1..{kanji_search.fields["reading_depth"]}]->(read)
             )
             WITH p AS path
               SKIP $randomizer

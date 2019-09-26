@@ -1,6 +1,6 @@
 from components.kankeiforms.graph_util import (
-    meaning_broad_subpathing,
-    reading_subpathing,
+    MEANING_SUBPATHS_PARTIAL,
+    READING_SUB_PATH,
     get_reading_key,
 )
 from components.kankeiforms.kankeiform import KankeiForm
@@ -81,7 +81,7 @@ class KanjiLinkedToReading(KankeiForm):
             MATCH (r:Reading:Japanese {{{read_type}: $reading}})
             MATCH(comp:Character {{writing: $radical}})
             MATCH p = (
-            (r)-[{reading_subpathing}*0..{kwargs["reading_depth"].value}]->(:Reading:Japanese)
+            (r)-[{READING_SUB_PATH}*0..{kwargs["reading_depth"].value}]->(:Reading:Japanese)
               <-[:HasReading]-(k:Kanji)-[:HasRadical]->(comp)
             )
             WITH p AS path
@@ -103,7 +103,7 @@ class KanjiLinkedToReading(KankeiForm):
             MATCH (r:Reading:Japanese {{{read_type}: $reading}})
             MATCH(comp:Character {{writing: $comp}})
             MATCH p = (
-            (r)-[{reading_subpathing}*0..{kwargs["reading_depth"].value}]->(:Reading:Japanese)
+            (r)-[{READING_SUB_PATH}*0..{kwargs["reading_depth"].value}]->(:Reading:Japanese)
               <-[:HasReading]-(k:Kanji)-[:IsComposedOf*0..{kanji_search.fields["component_depth"]}]->(comp)
             )
             WITH p AS path
