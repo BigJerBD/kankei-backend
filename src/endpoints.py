@@ -1,16 +1,11 @@
 import logging
 from json import loads as jsonloads
-from pprint import pprint
-
-import requests
 from sanic import response
-from sanic_cors import cross_origin
 
 from components import kankeiforms as kankeiforms_module, neo4j_database, infoqueries
 from components.kankeiforms.coloring_types import DEFAULT_COLORING_TYPES
 from components.kankeiforms.shown_properties import DEFAULT_SHOWN_PROPERTIES
 from components.searchqueries import get_kanji_search_handler, get_word_search_handler
-from exception_types import QueryDoesNotExist, InvalidArgumentError
 
 
 # todo :: replace with blueprints for more a more standard Sanic/Flask Application :)
@@ -46,17 +41,17 @@ def inject_endpoints(app, config):  # noqa: C901
         grp = kankeiforms.get(group, None)
 
         if not grp:
-            raise QueryDoesNotExist("Group does not exist")
+            return response.json("Group does not exist", status=400)
         query = grp.get(name, None)
         if not query:
-            raise QueryDoesNotExist("Query does not exist in group")
+            return response.json("Group does not exist in this group", status=400)
 
         logging.debug(f"query fetched : {query}")
         try:
             result = query.run_query(db_driver, **jsonloads(request.body))
             return response.json(result)
         except ValueError as e:
-            raise InvalidArgumentError(message=str(e))
+            return response.json(str(e), status=422)
 
     @app.route("/api/search/word")
     async def search_word(request):
@@ -64,7 +59,7 @@ def inject_endpoints(app, config):  # noqa: C901
             results = word_search(request.args.get("value"))
             return response.json(results)
         else:
-            raise InvalidArgumentError("value need to be in the query arguments")
+            return response.json("value need to be in the query arguments")
 
     @app.route("/api/search/kanji")
     async def search_kanji(request):
@@ -72,7 +67,7 @@ def inject_endpoints(app, config):  # noqa: C901
             results = kanji_search(request.args.get("value"))
             return response.json(results)
         else:
-            raise InvalidArgumentError("value need to be in the query arguments")
+            return response.json("value need to be in the query arguments")
 
     @app.route("/api/info/kanji")
     async def info_kanji(request):
@@ -85,7 +80,7 @@ def inject_endpoints(app, config):  # noqa: C901
 
             return response.json(result)
         else:
-            raise InvalidArgumentError("value need to be in the query arguments")
+            return response.json("value need to be in the query arguments")
 
     @app.route("/api/info/word")
     async def info_word(request):
@@ -97,4 +92,4 @@ def inject_endpoints(app, config):  # noqa: C901
             return response.json(result)
 
         else:
-            raise InvalidArgumentError("value need to be in the query arguments")
+            return response.json("value need to be in the query arguments")
