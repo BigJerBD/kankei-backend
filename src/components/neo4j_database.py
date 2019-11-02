@@ -1,5 +1,6 @@
 import logging
 
+import neo4j
 import neobolt.exceptions
 from neo4j import GraphDatabase
 
@@ -9,7 +10,7 @@ log = logging.getLogger(__name__)
 def get_db_driver(config):
     try:
         db_driver = GraphDatabase.driver(
-            config.DB_URI, auth=(config.DB_USER, config.DB_PASSWORD)
+            config.DB_URI, auth=(config.DB_USER, config.DB_PASSWORD), encrypted=False
         )
     except neobolt.exceptions.ServiceUnavailable as e:
 
