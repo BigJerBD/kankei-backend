@@ -35,10 +35,10 @@ $ python `pwd`/src/server.py
 
 ### Other Components
 
-- to run the Application with the backend, please go the `Kankei-Backend` repository
+- to run the backend with the frontend, please go the `Kankei-Frontend` repository
   for more information about the setup
 
-- to run also the Database, please contact me directly. The data are not openly shared to everyone
+- to run also the database, please contact me directly. The data are not openly shared to everyone
   since they come from personal data wrangling processes
 
 
