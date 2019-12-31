@@ -1,6 +1,6 @@
 FROM python:3.7
 
-ENV KANKEI_WEB_SETTINGS  ./src/settings/prod.py
+ENV KANKEI_WEB_SETTINGS  ./src/settings_base.py
 
 COPY . /kankei_backend/
 

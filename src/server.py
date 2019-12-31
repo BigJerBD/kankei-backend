@@ -25,7 +25,6 @@ def start_server():
     app = get_app()
     config = app.config
     set_logging(config)
-
     inject_endpoints(app=app, config=config)
     inject_exceptions_responses(app=app, config=config)
 
