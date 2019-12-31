@@ -1,7 +1,7 @@
 # noinspection PyUnresolvedReferences
 import logging
 
-from settings.base import *
+from settings import *
 
 BACKEND_URL = "localhost:5000"
 DB_ALLOW_NONE = True
