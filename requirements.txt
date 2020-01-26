@@ -1,7 +1,7 @@
-Sanic
-Sanic-Cors
+Sanic==19.6.2
+Sanic-Cors==0.9.9
 
-jaconv
-kanaconv
-requests
-neo4j
+jaconv==0.2.4
+kanaconv==1.0.1
+requests==2.22.0
+neo4j==1.7.4
