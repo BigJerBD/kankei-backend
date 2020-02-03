@@ -5,3 +5,4 @@ from .word_linked_to_meaning import WordLinkedToMeaning
 from .kanji_antonyms import KanjiAntonym
 from .kanji_synonym import KanjiSynonym
 from .word_antonyms import WordAntonym
+from .word_synonyms import WordSynonym
