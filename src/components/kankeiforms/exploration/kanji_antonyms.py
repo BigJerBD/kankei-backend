@@ -12,7 +12,7 @@ from tools.queryform.fields import IntField, StringField
 
 class KanjiAntonym(KankeiForm):
     group = "Exploration"
-    name = "Get kanji antonyms"
+    name = "Get antonym (kanji)"
     tooltip = ""
     coloring_types = ["Meaning", "Character", "Reading"]
     fields = [
