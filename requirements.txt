@@ -1,4 +1,4 @@
-Sanic==19.6.2
+Sanic==20.12.7
 Sanic-Cors==0.9.9
 
 jaconv==0.2.4
