@@ -3,5 +3,5 @@ Sanic-Cors==0.9.9
 
 jaconv==0.2.4
 kanaconv==1.0.1
-requests==2.22.0
+requests==2.31.0
 neo4j==1.7.4
